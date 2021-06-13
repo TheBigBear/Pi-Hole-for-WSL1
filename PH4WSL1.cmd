@@ -32,6 +32,9 @@ ECHO @NetSH AdvFirewall Firewall del rule name="Pi-hole FTL"       >> "%PRGF%\Pi
 ECHO @NetSH AdvFirewall Firewall del rule name="Pi-hole Web Admin" >> "%PRGF%\Pi-hole Uninstall.cmd"
 ECHO @NetSH AdvFirewall Firewall del rule name="Pi-hole DNS (TCP)" >> "%PRGF%\Pi-hole Uninstall.cmd"
 ECHO @NetSH AdvFirewall Firewall del rule name="Pi-hole DNS (UDP)" >> "%PRGF%\Pi-hole Uninstall.cmd"
+ECHO @NetSH AdvFirewall Firewall del rule name="Pi-hole Web (TCP)" >> "%PRGF%\Pi-hole Uninstall.cmd"
+ECHO @NetSH AdvFirewall Firewall del rule name="Pi-hole SSH (TCP)" >> "%PRGF%\Pi-hole Uninstall.cmd"
+ECHO @NetSH AdvFirewall Firewall del rule name="Pi-hole SSHD (TCP)" >> "%PRGF%\Pi-hole Uninstall.cmd"
 ECHO @%PRGF:~0,1%:                                                 >> "%PRGF%\Pi-hole Uninstall.cmd"
 ECHO @CD "%PRGF%\.."                                               >> "%PRGF%\Pi-hole Uninstall.cmd"
 ECHO @WSLCONFIG /T Pi-hole                                         >> "%PRGF%\Pi-hole Uninstall.cmd"
@@ -70,6 +73,9 @@ NetSH AdvFirewall Firewall add rule name="Pi-hole FTL"        dir=in action=allo
 NetSH AdvFirewall Firewall add rule name="Pi-hole Web Admin"  dir=in action=allow program="%PRGF%\rootfs\usr\sbin\lighttpd"  enable=yes > NUL
 NetSH AdvFirewall Firewall add rule name="Pi-hole DNS (TCP)"  dir=in action=allow protocol=TCP localport=53 enable=yes > NUL
 NetSH AdvFirewall Firewall add rule name="Pi-hole DNS (UDP)"  dir=in action=allow protocol=UDP localport=53 enable=yes > NUL
+NetSH AdvFirewall Firewall add rule name="Pi-hole Web (TCP)"  dir=in action=allow protocol=TCP localport=%PORT% enable=yes > NUL
+NetSH AdvFirewall Firewall add rule name="Pi-hole SSH (TCP)"  dir=in action=allow protocol=TCP localport=2222 enable=yes > NUL
+NetSH AdvFirewall Firewall add rule name="Pi-hole SSHD (TCP)"  dir=in action=allow program="%PRGF%\rootfs\usr\sbin\sshd"  enable=yes > NUL
 ECHO. & ECHO.Launching Pi-hole installer... & ECHO.
 REM -- Install Pi-hole
 %GO% "echo 'nameserver 1.1.1.1' > /etc/resolv.conf ; curl -L https://install.Pi-hole.net | bash /dev/stdin --unattended"
