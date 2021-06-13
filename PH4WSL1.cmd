@@ -44,7 +44,6 @@ POWERSHELL.EXE -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.Secu
 START /WAIT /MIN "Installing Debian..." "LxRunOffline.exe" "i" "-n" "Pi-hole" "-f" "%TEMP%\debian.tar.gz" "-d" "."
 ECHO|SET /p="-> Compacting install " 
 SET GO="%PRGF%\LxRunOffline.exe" r -n Pi-hole -c 
-%GO% "apt-get update ; apt-get -y install sqlite3 rsync openssh-server openssh-client ssh --no-install-recommends" > "%PRGF%\logs\Pi-hole Dependency Stage.log"
 %GO% "apt-get -y purge dmsetup libapparmor1 libargon2-1 libdevmapper1.02.1 libestr0 libfastjson4 libidn11 libjson-c3 liblognorm5 rsyslog systemd systemd-sysv vim-common vim-tiny xxd --autoremove --allow-remove-essential" > "%PRGF%\logs\Pi-hole Compact Stage.log"
 %GO% "rm -rf /etc/apt/apt.conf.d/20snapd.conf /etc/rc2.d/S01whoopsie /etc/init.d/console-setup.sh /etc/init.d/udev"
 ECHO.-^> Install dependencies
