@@ -3,9 +3,13 @@
 if %ERRORLEVEL% == 0 (ECHO Administrator check passed...) ELSE (ECHO You need to run this command with administrative rights.  Is User Account Control enabled? && pause && goto ENDSCRIPT)
 POWERSHELL -Command "$WSL = Get-WindowsOptionalFeature -Online -FeatureName 'Microsoft-Windows-Subsystem-Linux' ; if ($WSL.State -eq 'Disabled') {Enable-WindowsOptionalFeature -FeatureName $WSL.FeatureName -Online}"
 SET PORT=80
-START /MIN /WAIT "Check for Open Port" "POWERSHELL" "-COMMAND" "Get-NetTCPConnection -LocalPort 80 > '%TEMP%\PortCheck.tmp'"
+START /MIN /WAIT "Check for Open Port" "POWERSHELL" "-COMMAND" "Get-NetTCPConnection -LocalPort %PORT% > '%TEMP%\PortCheck.tmp'"
 FOR /f %%i in ("%TEMP%\PortCheck.tmp") do set SIZE=%%~zi 
 IF %SIZE% gtr 0 SET PORT=60080
+SET SSH_PORT=2222
+START /MIN /WAIT "Check for Open Port" "POWERSHELL" "-COMMAND" "Get-NetTCPConnection -LocalPort %SSH_PORT% > '%TEMP%\SSHPortCheck.tmp'"
+FOR /f %%i in ("%TEMP%\SSHPortCheck.tmp") do set SSHSIZE=%%~zi 
+IF %SSHSIZE% gtr 0 SET SSH_PORT=62222
 :INPUTS
 CLS
 ECHO.-------------------------------- & ECHO. Pi-hole for Windows v.20210607 & ECHO.-------------------------------- & ECHO.
@@ -16,7 +20,7 @@ WSL.EXE -d Pi-hole -e . > "%TEMP%\InstCheck.tmp"
 FOR /f %%i in ("%TEMP%\InstCheck.tmp") do set CHKIN=%%~zi 
 IF %CHKIN% == 0 (ECHO. & ECHO Existing Pi-hole installation detected, uninstall Pi-hole first. & PAUSE & GOTO INPUTS)
 ECHO.
-ECHO.Pi-hole will be installed in "%PRGF%" and Web Admin will listen on port %PORT%
+ECHO.Pi-hole will be installed in "%PRGF%" and Web Admin will listen on port %PORT% sshd will listen on %SSH_PORT%
 PAUSE 
 IF NOT EXIST %TEMP%\debian.tar.gz POWERSHELL.EXE -Command "Start-BitsTransfer -source https://salsa.debian.org/debian/WSL/-/raw/master/x64/install.tar.gz?inline=false -destination '%TEMP%\debian.tar.gz'"
 %PRGF:~0,1%: & MKDIR "%PRGF%" & CD "%PRGF%" & MKDIR "logs" 
@@ -70,12 +74,14 @@ ECHO.-^> Install dependencies
 %GO% "echo WEBPASSWORD=                >> /etc/pihole/setupVars.conf"
 %GO% "echo interface %IPF%             >  /etc/dhcpcd.conf"
 %GO% "echo static ip_address=%IPC%     >> /etc/dhcpcd.conf"
+%GO% "sed -i 's@#Port 22@Port %SSH_PORT%@g' /etc/ssh/sshd_config"
+%GO% "service ssh start"
 NetSH AdvFirewall Firewall add rule name="Pi-hole FTL"        dir=in action=allow program="%PRGF%\rootfs\usr\bin\pihole-ftl" enable=yes > NUL
 NetSH AdvFirewall Firewall add rule name="Pi-hole Web Admin"  dir=in action=allow program="%PRGF%\rootfs\usr\sbin\lighttpd"  enable=yes > NUL
 NetSH AdvFirewall Firewall add rule name="Pi-hole DNS (TCP)"  dir=in action=allow protocol=TCP localport=53 enable=yes > NUL
 NetSH AdvFirewall Firewall add rule name="Pi-hole DNS (UDP)"  dir=in action=allow protocol=UDP localport=53 enable=yes > NUL
 NetSH AdvFirewall Firewall add rule name="Pi-hole Web (TCP)"  dir=in action=allow protocol=TCP localport=%PORT% enable=yes > NUL
-NetSH AdvFirewall Firewall add rule name="Pi-hole SSH (TCP)"  dir=in action=allow protocol=TCP localport=2222 enable=yes > NUL
+NetSH AdvFirewall Firewall add rule name="Pi-hole SSH (TCP)"  dir=in action=allow protocol=TCP localport=%SSH_PORT% enable=yes > NUL
 NetSH AdvFirewall Firewall add rule name="Pi-hole SSHD (TCP)"  dir=in action=allow program="%PRGF%\rootfs\usr\sbin\sshd"  enable=yes > NUL
 ECHO. & ECHO.Launching Pi-hole installer... & ECHO.
 REM -- Install Pi-hole
