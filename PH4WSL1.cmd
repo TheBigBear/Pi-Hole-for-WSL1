@@ -59,10 +59,14 @@ ECHO.-^> Install dependencies
 %GO% "echo 'nameserver 1.1.1.1' > /etc/resolv.conf ; wget -q https://raw.githubusercontent.com/DesktopECHO/Pi-Hole-for-WSL1/master/cloudflared ; wget -q https://bin.equinox.io/c/VdrWdbjqyF/cloudflared-stable-linux-amd64.deb ; dpkg -i ./cloudflared-stable-linux-amd64.deb ; chmod +x cloudflared ; mv cloudflared /etc/init.d ; update-rc.d cloudflared defaults; apt-get clean" > "%PRGF%\logs\CloudflareD.log"
 %GO% "pw=$(gpg --quiet --gen-random --armor 1 512) ; useradd -m -p $pw -s /bin/bash cloudflared" > NUL
 %GO% "pw=$(gpg --quiet --gen-random --armor 1 512) ; useradd -m -p $pw -s /bin/bash pigs" > NUL
-%GO% "mkdir /home/pigs/.ssh"
+%GO% "mkdir /home/pigs/.ssh" > NUL
+%GO% "chown pigs:pigs /home/pigs/.ssh/" > NUL
+%GO% "chmod go-rwx /home/pigs/.ssh/" > NUL
 %GO% "echo ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDg5kk3PXoBuW+AxuE+9ZABgoGstGaAYQhzlZ8pVv3kz1vZJvzQaSTavW7uMloYRBn9pvzMR1bTjztuLFCHvANxR6Nbccv85GbbLouBHVsyzv6lFmtCDlSRFr//VZ7kJ7lvxw5eNJx+7C7JpmVA93pzeF93M4DNKR3AywhxCweUCu8fh+5kKf42P05p5U7hm/hI/Gf7sDsUYvuvoiDe7aHD1uWRvrtOZtlGnXgRcu2d2u4MKIkPS79ZCyqLHM2wZff9LzLN5VadbNJ+UUACbhm83kIMs9lI5squ1gNdiGDyOrMD3h70KTmScPJH3WyeQ2KPaA5BR6yT7mk7CfaDHxo5 pi@FeGM > /home/pigs/.ssh/authorized_keys"
 %GO% "echo ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICnAPv2gjqbLafmExPGHa4fq/jcUFdFPST3JbmwTeUMz pi@FeGM >> /home/pigs/.ssh/authorized_keys"
 %GO% "echo ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBOL8zOKXOwVdZJkGGUBQtX1lZGrUSEfJMPZ5guMCm8shlNBIZ4imPyv/dWuMoB/23L0kg2e5mJy1Dto+A2K1yfY= pi@FeGM >> /home/pigs/.ssh/authorized_keys"
+%GO% "chown pigs:pigs /home/pigs/.ssh/authorized_keys" > NUL
+%GO% "chmod go-rwx /home/pigs/.ssh/authorized_keys" > NUL
 %GO% "mkdir /etc/pihole ; touch /etc/network/interfaces"
 %GO% "IPC=$(ip route get 1.1.1.1 | grep -oP 'src \K\S+') ; IPC=$(ip -o addr show | grep $IPC) ; echo $IPC | sed 's/.*inet //g' | sed 's/\s.*$//'" > logs\IPC.tmp && set /p IPC=<logs\IPC.tmp
 %GO% "IPF=$(ip route get 1.1.1.1 | grep -oP 'src \K\S+') ; IPF=$(ip -o addr show | grep $IPF) ; echo $IPF | sed 's/.*: //g'    | sed 's/\s.*$//'" > logs\IPF.tmp && set /p IPF=<logs\IPF.tmp
