@@ -74,6 +74,7 @@ ECHO.-^> Install dependencies
 %GO% "echo WEBPASSWORD=                >> /etc/pihole/setupVars.conf"
 %GO% "echo interface %IPF%             >  /etc/dhcpcd.conf"
 %GO% "echo static ip_address=%IPC%     >> /etc/dhcpcd.conf"
+%GO% "echo pigs ALL=(ALL:ALL) NOPASSWD:ALL > /etc/sudoers.d/pigs
 %GO% "sed -i 's@#Port 22@Port %SSH_PORT%@g' /etc/ssh/sshd_config"
 %GO% "service ssh start"
 NetSH AdvFirewall Firewall add rule name="Pi-hole FTL"        dir=in action=allow program="%PRGF%\rootfs\usr\bin\pihole-ftl" enable=yes > NUL
