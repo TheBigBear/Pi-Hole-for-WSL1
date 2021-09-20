@@ -22,7 +22,7 @@ IF %CHKIN% == 0 (ECHO. & ECHO Existing Pi-hole installation detected, uninstall 
 ECHO.
 ECHO.Pi-hole will be installed in "%PRGF%" and Web Admin will listen on port %PORT% sshd will listen on %SSH_PORT%
 PAUSE 
-IF NOT EXIST %TEMP%\debian.tar.gz POWERSHELL.EXE -Command "Start-BitsTransfer -source https://salsa.debian.org/debian/WSL/-/raw/master/x64/install.tar.gz?inline=false -destination '%TEMP%\debian.tar.gz'"
+IF NOT EXIST %TEMP%\buster.tar.gz POWERSHELL.EXE -Command "Start-BitsTransfer -source https://salsa.debian.org/debian/WSL/-/raw/6fb6134911e7c25bfd78635a70649b94f82773b0/x64/install.tar.gz?inline=false -destination '%TEMP%\buster.tar.gz'"
 %PRGF:~0,1%: & MKDIR "%PRGF%" & CD "%PRGF%" & MKDIR "logs" 
 FOR /F "usebackq delims=" %%v IN (`PowerShell -Command "whoami"`) DO set "WAI=%%v"
 ICACLS "%PRGF%" /grant "%WAI%:(CI)(OI)F" > NUL
@@ -48,7 +48,7 @@ ECHO.
 ECHO This will take a few minutes to complete...
 ECHO|SET /p="Installing LXrunOffline.exe and Debian "
 POWERSHELL.EXE -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 ; wget https://github.com/DDoSolitary/LxRunOffline/releases/download/v3.5.0/LxRunOffline-v3.5.0-msvc.zip -UseBasicParsing -OutFile '%TEMP%\LxRunOffline-v3.5.0-msvc.zip' ; Expand-Archive -Path '%TEMP%\LxRunOffline-v3.5.0-msvc.zip' -DestinationPath '%PRGF%'"
-START /WAIT /MIN "Installing Debian..." "LxRunOffline.exe" "i" "-n" "Pi-hole" "-f" "%TEMP%\debian.tar.gz" "-d" "."
+START /WAIT /MIN "Installing Debian..." "LxRunOffline.exe" "i" "-n" "Pi-hole" "-f" "%TEMP%\buster.tar.gz" "-d" "."
 ECHO|SET /p="-> Compacting install " 
 SET GO="%PRGF%\LxRunOffline.exe" r -n Pi-hole -c 
 %GO% "echo 'nameserver 1.1.1.1' > /etc/resolv.conf ; apt-get update ; apt-get -y install sqlite3 rsync openssh-server openssh-client ssh --no-install-recommends" > "%PRGF%\logs\Pi-hole Dependency Stage.log"
